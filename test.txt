@@ -1,0 +1,54 @@
+const { chromium } = require('playwright');
+
+describe('API Testing', () => {
+  let browser;
+  let page;
+
+  beforeAll(async () => {
+    browser = await chromium.launch();
+  });
+
+  afterAll(async () => {
+    await browser.close();
+  });
+
+  beforeEach(async () => {
+    const context = await browser.newContext();
+    page = await context.newPage();
+  });
+
+  afterEach(async () => {
+    await page.close();
+  });
+
+  it('should send a POST request with API key and URL', async () => {
+    const apiKey = 'YOUR_API_KEY';
+    const apiUrl = 'https://api.example.com/endpoint';
+    const payload = {
+      // Your payload data here
+    };
+
+    await page.route('**', (route) => {
+      if (route.request().method() === 'POST' && route.request().url() === apiUrl) {
+        const headers = route.request().headers();
+        headers['x-api-key'] = apiKey;
+        route.continue({ headers });
+      } else {
+        route.continue();
+      }
+    });
+
+    await page.goto('about:blank');
+    await page.evaluate(async (url, data) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+        },
+        body: JSON.stringify(data),
+      });
+      return response.json();
+    }, apiUrl, payload);
+  });
+});
