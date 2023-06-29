@@ -1,54 +1,44 @@
-const { chromium } = require('playwright');
+browser = await chromium.launch();
+  context = await browser.newContext();
+  page = await context.newPage();
 
-describe('API Testing', () => {
-  let browser;
-  let page;
+  // Construct the registration endpoint URL
+  const registrationEndpoint = 'https://mockbin.org/bin/{bin_id}/register';
 
-  beforeAll(async () => {
-    browser = await chromium.launch();
+  // Send the POST request using Playwright
+  await page.goto(registrationEndpoint, {
+    method: 'POST',
+    body: JSON.stringify(this.user),
+    headers: { 'Content-Type': 'application/json' },
   });
 
-  afterAll(async () => {
-    await browser.close();
-  });
-
-  beforeEach(async () => {
-    const context = await browser.newContext();
-    page = await context.newPage();
-  });
-
-  afterEach(async () => {
-    await page.close();
-  });
-
-  it('should send a POST request with API key and URL', async () => {
-    const apiKey = 'YOUR_API_KEY';
-    const apiUrl = 'https://api.example.com/endpoint';
-    const payload = {
-      // Your payload data here
+  // Capture the response
+  response = await page.evaluate(() => {
+    return {
+      statusCode: document.querySelector('status').textContent,
+      body: document.querySelector('body').textContent,
     };
-
-    await page.route('**', (route) => {
-      if (route.request().method() === 'POST' && route.request().url() === apiUrl) {
-        const headers = route.request().headers();
-        headers['x-api-key'] = apiKey;
-        route.continue({ headers });
-      } else {
-        route.continue();
-      }
-    });
-
-    await page.goto('about:blank');
-    await page.evaluate(async (url, data) => {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-        },
-        body: JSON.stringify(data),
-      });
-      return response.json();
-    }, apiUrl, payload);
   });
 });
+
+Then('the response status code should be {int}', async (statusCode) => {
+  // Add assertions for the response status code
+  expect(parseInt(response.statusCode)).toBe(statusCode);
+});
+
+Then('the response body should contain the message {string}', async (message) => {
+  // Add assertions for the response body
+  expect(response.body).toContain(message);
+  await browser.close();
+});
+
+Feature: User Registration
+  Scenario: Successful user registration
+    Given I have a user object with the following details:
+      | name     | John Doe     |
+      | email    | john@example.com |
+      | password | password123  |
+    When I send a POST request to the registration endpoint
+    Then the response status code should be 201
+    And the response body should contain the message "User registered successfully"
+
