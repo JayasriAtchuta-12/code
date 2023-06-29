@@ -47,6 +47,31 @@ Then('the response body should contain the message {string}', async (message) =>
   await browser.close();
 });
 
+const { setWorldConstructor } = require('@cucumber/cucumber');
+const { defineParameterType } = require('@cucumber/cucumber');
+
+// This will allow Cucumber to recognize async/await
+const cucumber = require('@cucumber/cucumber');
+const { setDefaultTimeout } = cucumber;
+setDefaultTimeout(60 * 1000);
+
+// Define custom world
+class CustomWorld {
+  constructor() {
+    this.variable = 0;
+  }
+
+  setTo(number) {
+    this.variable = parseInt(number, 10);
+  }
+}
+
+setWorldConstructor(CustomWorld);
+defineParameterType({
+  name: 'int',
+  regexp: /[+-]?\d+/,
+  transformer: (s) => parseInt(s, 10),
+});
   
 
 Feature: User Registration
