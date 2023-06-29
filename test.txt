@@ -1,86 +1,41 @@
-const { Given, When, Then } = require('@cucumber/cucumber');
-const { chromium } = require('@playwright/test');
+Feature: Making a POST request
+
+Scenario: Sending a POST request
+  Given I have the following payload:
+    """
+    {
+      "name": "John Doe",
+      "email": "johndoe@example.com"
+    }
+    """
+  When I send a POST request to "https://api.example.com/users"
+  Then the response status code should be 201
+  And the response should contain "User created successfully"
+
+
+const { Given, When, Then } = require('cucumber');
 const axios = require('axios');
 
-let browser;
-let context;
-let page;
+let payload;
 let response;
 
-Given('I have a user object with the following details:', async (dataTable) => {
-  const user = dataTable.rowsHash();
-  this.user = user;
+Given('I have the following payload:', function (payloadString) {
+  payload = JSON.parse(payloadString);
 });
 
-When('I send a POST request to the registration endpoint', async () => {
-  browser = await chromium.launch();
-  context = await browser.newContext();
-  page = await context.newPage();
-
-  // Construct the registration endpoint URL
-  const registrationEndpoint = 'https://mockbin.org/bin/{bin_id}/register';
-
-  // Send the POST request using Playwright
-  await page.goto(registrationEndpoint, {
-    method: 'POST',
-    body: JSON.stringify(this.user),
-    headers: { 'Content-Type': 'application/json' },
-  });
-
-  // Capture the response
-  response = await page.evaluate(() => {
-    return {
-      statusCode: document.querySelector('status').textContent,
-      body: document.querySelector('body').textContent,
-    };
-  });
+When('I send a POST request to {string}', async function (url) {
+  response = await axios.post(url, payload);
 });
 
-Then('the response status code should be {int}', async (statusCode) => {
-  // Add assertions for the response status code
-  expect(parseInt(response.statusCode)).toBe(statusCode);
+Then('the response status code should be {int}', function (statusCode) {
+  expect(response.status).to.equal(statusCode);
 });
 
-Then('the response body should contain the message {string}', async (message) => {
-  // Add assertions for the response body
-  expect(response.body).toContain(message);
-  await browser.close();
+Then('the response should contain {string}', function (expectedText) {
+  expect(response.data).to.include(expectedText);
 });
 
-const { setWorldConstructor } = require('@cucumber/cucumber');
-const { defineParameterType } = require('@cucumber/cucumber');
 
-// This will allow Cucumber to recognize async/await
-const cucumber = require('@cucumber/cucumber');
-const { setDefaultTimeout } = cucumber;
-setDefaultTimeout(60 * 1000);
-
-// Define custom world
-class CustomWorld {
-  constructor() {
-    this.variable = 0;
-  }
-
-  setTo(number) {
-    this.variable = parseInt(number, 10);
-  }
+"scripts": {
+  "test": "cucumber-js"
 }
-
-setWorldConstructor(CustomWorld);
-defineParameterType({
-  name: 'int',
-  regexp: /[+-]?\d+/,
-  transformer: (s) => parseInt(s, 10),
-});
-  
-
-Feature: User Registration
-  Scenario: Successful user registration
-    Given I have a user object with the following details:
-      | name     | John Doe     |
-      | email    | john@example.com |
-      | password | password123  |
-    When I send a POST request to the registration endpoint
-    Then the response status code should be 201
-    And the response body should contain the message "User registered successfully"
-
