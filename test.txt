@@ -1,4 +1,19 @@
-browser = await chromium.launch();
+const { Given, When, Then } = require('@cucumber/cucumber');
+const { chromium } = require('@playwright/test');
+const axios = require('axios');
+
+let browser;
+let context;
+let page;
+let response;
+
+Given('I have a user object with the following details:', async (dataTable) => {
+  const user = dataTable.rowsHash();
+  this.user = user;
+});
+
+When('I send a POST request to the registration endpoint', async () => {
+  browser = await chromium.launch();
   context = await browser.newContext();
   page = await context.newPage();
 
@@ -31,6 +46,8 @@ Then('the response body should contain the message {string}', async (message) =>
   expect(response.body).toContain(message);
   await browser.close();
 });
+
+  
 
 Feature: User Registration
   Scenario: Successful user registration
