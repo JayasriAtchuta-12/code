@@ -92,3 +92,41 @@ Then('the response should contain {string}', function (expectedText) {
   expect(response.data).to.include(expectedText);
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
+const json = '{"fruits": ["apple", "banana", "orange"]}';
+const data = JSON.parse(json);
+
+// Using forEach()
+data.fruits.forEach(fruit => {
+  console.log(fruit);
+});
+
+// Using map()
+const extractedFruits = data.fruits.map(fruit => fruit);
+console.log(extractedFruits); // ["apple", "banana", "orange"]
+
+// Using for...of loop
+for (const fruit of data.fruits) {
+  console.log(fruit);
+}
+
+
+
+
+
+const json = '{"fruits": ["apple", "banana", "orange"]}';
+const data = JSON.parse(json);
+
+const firstFruit = data.fruits[0]; // "apple"
+const secondFruit = data.fruits[1]; // "banana"
