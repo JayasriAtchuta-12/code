@@ -39,3 +39,56 @@ Then('the response should contain {string}', function (expectedText) {
 "scripts": {
   "test": "cucumber-js"
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Feature: Making a GET request
+
+Scenario: Sending a GET request
+  Given I have the endpoint "https://api.example.com/users"
+  When I send a GET request
+  Then the response status code should be 200
+  And the response should contain "John Doe"
+
+
+
+const { Given, When, Then } = require('cucumber');
+const axios = require('axios');
+
+let endpoint;
+let response;
+
+Given('I have the endpoint {string}', function (url) {
+  endpoint = url;
+});
+
+When('I send a GET request', async function () {
+  response = await axios.get(endpoint);
+});
+
+Then('the response status code should be {int}', function (statusCode) {
+  expect(response.status).to.equal(statusCode);
+});
+
+Then('the response should contain {string}', function (expectedText) {
+  expect(response.data).to.include(expectedText);
+});
+
