@@ -65,6 +65,56 @@ const jsonObject = {
 
 traverseJSON(jsonObject);
 
+function traverseJSON(obj) {
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const value = obj[key];
+      if (typeof value === 'object' && value !== null) {
+        if (Array.isArray(value)) {
+          traverseArray(value); // If value is an array, call a separate function to traverse it
+        } else {
+          traverseJSON(value); // Recursively traverse nested object
+        }
+      } else {
+        console.log(`Key: ${key}, Value: ${value}`);
+      }
+    }
+  }
+}
+
+function traverseArray(arr) {
+  for (let i = 0; i < arr.length; i++) {
+    const element = arr[i];
+    if (typeof element === 'object' && element !== null) {
+      traverseJSON(element); // Recursively traverse nested object within the array
+    } else {
+      console.log(`Array Element: ${element}`);
+    }
+  }
+}
+
+const jsonObject = {
+  key1: 'value1',
+  key2: {
+    nestedKey1: 'nestedValue1',
+    nestedKey2: 'nestedValue2'
+  },
+  key3: {
+    nestedKey3: {
+      deeplyNestedKey: 'deeplyNestedValue'
+    }
+  },
+  key4: [
+    {
+      arrayKey1: 'arrayValue1'
+    },
+    {
+      arrayKey2: 'arrayValue2'
+    }
+  ]
+};
+
+traverseJSON(jsonObject);
 
 
 
