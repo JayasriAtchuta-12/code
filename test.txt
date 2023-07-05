@@ -41,6 +41,29 @@ Then('the response should contain {string}', function (expectedText) {
 }
 
 
+function traverseJSON(obj) {
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const value = obj[key];
+      if (typeof value === 'object' && value !== null) {
+        traverseJSON(value); // Recursively traverse nested object
+      } else {
+        console.log(`Key: ${key}, Value: ${value}`);
+      }
+    }
+  }
+}
+
+const jsonObject = {
+  key1: 'value1',
+  key2: {
+    nestedKey1: 'nestedValue1',
+    nestedKey2: 'nestedValue2'
+  },
+  key3: 'value3'
+};
+
+traverseJSON(jsonObject);
 
 
 
