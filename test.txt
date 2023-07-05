@@ -41,80 +41,7 @@ Then('the response should contain {string}', function (expectedText) {
 }
 
 
-function traverseJSON(obj) {
-  for (let key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      const value = obj[key];
-      if (typeof value === 'object' && value !== null) {
-        traverseJSON(value); // Recursively traverse nested object
-      } else {
-        console.log(`Key: ${key}, Value: ${value}`);
-      }
-    }
-  }
-}
 
-const jsonObject = {
-  key1: 'value1',
-  key2: {
-    nestedKey1: 'nestedValue1',
-    nestedKey2: 'nestedValue2'
-  },
-  key3: 'value3'
-};
-
-traverseJSON(jsonObject);
-
-function traverseJSON(obj) {
-  for (let key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      const value = obj[key];
-      if (typeof value === 'object' && value !== null) {
-        if (Array.isArray(value)) {
-          traverseArray(value); // If value is an array, call a separate function to traverse it
-        } else {
-          traverseJSON(value); // Recursively traverse nested object
-        }
-      } else {
-        console.log(`Key: ${key}, Value: ${value}`);
-      }
-    }
-  }
-}
-
-function traverseArray(arr) {
-  for (let i = 0; i < arr.length; i++) {
-    const element = arr[i];
-    if (typeof element === 'object' && element !== null) {
-      traverseJSON(element); // Recursively traverse nested object within the array
-    } else {
-      console.log(`Array Element: ${element}`);
-    }
-  }
-}
-
-const jsonObject = {
-  key1: 'value1',
-  key2: {
-    nestedKey1: 'nestedValue1',
-    nestedKey2: 'nestedValue2'
-  },
-  key3: {
-    nestedKey3: {
-      deeplyNestedKey: 'deeplyNestedValue'
-    }
-  },
-  key4: [
-    {
-      arrayKey1: 'arrayValue1'
-    },
-    {
-      arrayKey2: 'arrayValue2'
-    }
-  ]
-};
-
-traverseJSON(jsonObject);
 
 
 
@@ -177,29 +104,38 @@ Then('the response should contain {string}', function (expectedText) {
 
 
 
-const json = '{"fruits": ["apple", "banana", "orange"]}';
-const data = JSON.parse(json);
+Feature: Create a new resource
 
-// Using forEach()
-data.fruits.forEach(fruit => {
-  console.log(fruit);
+Scenario: Create a new resource via POST
+    Given I have a request payload with the following data:
+        | name        | John Doe       |
+        | email       | john@example.com |
+        | address     | 123 Main St    |
+        | city        | Anytown        |
+        | postal_code | 12345          |
+    When I send a POST request to "/api/resource"
+    Then the response status code should be 201
+    And the response should contain the property "id"
+import { Given, When, Then } from 'cucumber';
+import axios from 'axios';
+
+Given('I have a request payload with the following data:', function (dataTable) {
+  const payload = dataTable.hashes()[0];
+  this.requestPayload = payload;
 });
 
-// Using map()
-const extractedFruits = data.fruits.map(fruit => fruit);
-console.log(extractedFruits); // ["apple", "banana", "orange"]
+When('I send a POST request to {string}', async function (url) {
+  const response = await axios.post(url, this.requestPayload);
+  this.response = response;
+});
 
-// Using for...of loop
-for (const fruit of data.fruits) {
-  console.log(fruit);
-}
+Then('the response status code should be {int}', function (statusCode) {
+  const actualStatusCode = this.response.status;
+  expect(actualStatusCode).toBe(statusCode);
+});
 
+Then('the response should contain the property {string}', function (propertyName) {
+  const responseData = this.response.data;
+  expect(responseData.hasOwnProperty(propertyName)).toBe(true);
+});
 
-
-
-
-const json = '{"fruits": ["apple", "banana", "orange"]}';
-const data = JSON.parse(json);
-
-const firstFruit = data.fruits[0]; // "apple"
-const secondFruit = data.fruits[1]; // "banana"
