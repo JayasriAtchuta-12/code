@@ -139,3 +139,33 @@ Then('the response should contain the property {string}', function (propertyName
   expect(responseData.hasOwnProperty(propertyName)).toBe(true);
 });
 
+import { Given, When, Then } from 'cucumber';
+import axios, { AxiosRequestConfig } from 'axios';
+
+Given('I have a request payload with the following data:', function (dataTable) {
+  const payload = dataTable.hashes()[0];
+  this.requestPayload = payload;
+});
+
+Given('I have the following headers:', function (dataTable) {
+  const headers = dataTable.hashes()[0];
+  this.requestHeaders = headers;
+});
+
+When('I send a POST request to {string}', async function (url) {
+  const config: AxiosRequestConfig = {
+    headers: this.requestHeaders
+  };
+  const response = await axios.post(url, this.requestPayload, config);
+  this.response = response;
+});
+
+Then('the response status code should be {int}', function (statusCode) {
+  const actualStatusCode = this.response.status;
+  expect(actualStatusCode).toBe(statusCode);
+});
+
+Then('the response should contain the property {string}', function (propertyName) {
+  const responseData = this.response.data;
+  expect(responseData.hasOwnProperty(propertyName)).toBe(true);
+});
