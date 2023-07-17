@@ -169,3 +169,101 @@ Then('the response should contain the property {string}', function (propertyName
   const responseData = this.response.data;
   expect(responseData.hasOwnProperty(propertyName)).toBe(true);
 });
+
+
+const { Given, When, Then } = require('cucumber');
+const { chromium } = require('playwright');
+const readline = require('readline');
+
+let payloadData;
+let responseStatus;
+
+Given('I have the user registration payload', async function () {
+  // Generate unique dynamic payload values
+  const username = generateUniqueUsername();
+  const email = generateUniqueEmail();
+  const password = generatePassword();
+
+  // Create payload object with unique values
+  const payload = {
+    username,
+    email,
+    password
+  };
+
+  payloadData = JSON.stringify(payload);
+});
+
+When('I make a POST request to the registration endpoint', async function () {
+  const registrationUrl = 'https://api.example.com/register';
+
+  const browser = await chromium.launch();
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  await page.route('**', (route) => {
+    if (route.request().method() === 'POST' && route.request().url() === registrationUrl) {
+      route.fulfill({
+        status: responseStatus,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'User registered successfully' }),
+      });
+    } else {
+      route.continue();
+    }
+  });
+
+  await page.goto(registrationUrl, { method: 'POST', body: payloadData });
+  await browser.close();
+});
+
+// Rest of the step definitions...
+
+// Helper functions to generate unique dynamic values
+function generateUniqueUsername() {
+  // Implement your logic here to generate a unique username
+  // For example, you can append a timestamp or random number to the base username
+  const baseUsername = 'user123';
+  const timestamp = Date.now();
+  return `${baseUsername}_${timestamp}`;
+}
+
+function generateUniqueEmail() {
+  // Implement your logic here to generate a unique email
+  // You can use a similar approach as the unique username
+  const baseEmail = 'user123@example.com';
+  const timestamp = Date.now();
+  return `${timestamp}_${baseEmail}`;
+}
+
+function generatePassword() {
+  // Implement your logic here to generate a dynamic password
+  return 'password123';
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
