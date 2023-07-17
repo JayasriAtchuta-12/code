@@ -242,6 +242,78 @@ function generatePassword() {
 }
 
 
+const { Given, When, Then } = require('cucumber');
+const { chromium } = require('playwright');
+
+let payloadData;
+let responseStatus;
+
+Given('I have the user registration payload', function () {
+  // Generate unique dynamic payload values
+  const username = generateUniqueUsername();
+  const email = generateUniqueEmail();
+  const password = generatePassword();
+
+  // Create payload object with unique values
+  const payload = {
+    username,
+    email,
+    password
+  };
+
+  payloadData = JSON.stringify(payload);
+});
+
+When('I make a POST request to the registration endpoint', async function () {
+  const registrationUrl = 'https://api.example.com/register';
+
+  const browser = await chromium.launch();
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  await page.route('**', (route) => {
+    if (route.request().method() === 'POST' && route.request().url() === registrationUrl) {
+      route.fulfill({
+        status: responseStatus,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'User registered successfully' }),
+      });
+    } else {
+      route.continue();
+    }
+  });
+
+  await page.goto(registrationUrl, { method: 'POST', body: payloadData });
+  await browser.close();
+});
+
+Then('the response status should be {int}', function (status) {
+  responseStatus = status;
+});
+
+// Rest of the step definitions...
+
+// Helper functions to generate unique dynamic values
+function generateUniqueUsername() {
+  // Implement your logic here to generate a unique username
+  // You can use a combination of a base username and a random or timestamp-based suffix
+  const baseUsername = 'user123';
+  const suffix = Math.floor(Math.random() * 1000);
+  return `${baseUsername}${suffix}`;
+}
+
+function generateUniqueEmail() {
+  // Implement your logic here to generate a unique email
+  // You can use a combination of a base email and a random or timestamp-based suffix
+  const baseEmail = 'user123@example.com';
+  const suffix = Math.floor(Math.random() * 1000);
+  return `${suffix}${baseEmail}`;
+}
+
+function generatePassword() {
+  // Implement your logic here to generate a dynamic password
+  return 'password123';
+}
 
 
 
