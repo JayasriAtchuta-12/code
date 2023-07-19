@@ -1,0 +1,25 @@
+const axios = require('axios');
+
+describe('API POST Request Test', () => {
+  it('should successfully submit a POST request with dynamic values', async () => {
+    const endpointURL = 'https://api.example.com/submit';
+    const requestData = {
+      username: 'testuser',
+      email: 'testuser@example.com',
+      timestamp: Date.now().toString(),
+    };
+
+    const response = await axios.post(endpointURL, requestData);
+
+    // Perform an assertion to ensure the request was successful
+    expect(response.status).toBe(200);
+
+    // Get the response data
+    const responseBody = response.data;
+
+    // Perform assertions on the response data
+    expect(responseBody.username).toBe(requestData.username);
+    expect(responseBody.email).toBe(requestData.email);
+    expect(responseBody.timestamp).toBe(requestData.timestamp);
+  });
+});
