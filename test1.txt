@@ -23,3 +23,16 @@ describe('API POST Request Test', () => {
     expect(responseBody.timestamp).toBe(requestData.timestamp);
   });
 });
+if (dataArray && dataArray.length > 0) {
+        // Loop through the data array to access each object
+        dataArray.forEach((dataObject, index) => {
+          // Access specific properties from the data object
+          const dataValue1 = dataObject.property1;
+          const dataValue2 = dataObject.property2;
+
+          console.log(`Data Object ${index + 1} - Property 1:`, dataValue1);
+          console.log(`Data Object ${index + 1} - Property 2:`, dataValue2);
+        });
+      } else {
+        console.error('No data found in the response.');
+      }
