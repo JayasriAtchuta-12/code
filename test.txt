@@ -324,7 +324,7 @@ function generatePassword() {
 
 
 
-
+https://payrix.atlassian.net/wiki/spaces/PE/pages/23393796099/Payrix+Onboarding
 
 
 
